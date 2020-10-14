@@ -4,10 +4,9 @@ import {Droppable} from 'react-beautiful-dnd'
 import Task from './task.jsx'
 
 const Container = styled.div`
-    margin: 8px; 
+    margin:  8px; 
     border: 1px solid lightgrey;
     border-radius: 2px;
-    width: 220px;
 
     display: flex;
     flex-direction: column;
@@ -19,8 +18,9 @@ const TaskList = styled.div`
     padding: 8px;
     transition: background-color 0.2s ease;
     background-color: ${props => (props.isDraggingOver ? 'skyblue' : 'white')}
-    flex-grow: 1;
-    min-height: 100px;
+
+    display: flex;
+    flex-direction: row;
 `
 
 
@@ -29,7 +29,8 @@ export default class Column extends React.Component{
         return(
             <Container>
                 <Title>{this.props.column.title}</Title>
-                <Droppable droppableId={this.props.column.id}>
+                {/* able to have lists sorted in the horizontal plane by direction="horizontal" */}
+                <Droppable droppableId={this.props.column.id} direction="horizontal">
                     {(provided, snapshot) => (
                     <TaskList 
                         ref={provided.innerRef}
