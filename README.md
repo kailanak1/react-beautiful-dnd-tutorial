@@ -1,3 +1,8 @@
+# Readme 
+
+These are notes for the (react beautiful dnd library tutorial)[https://egghead.io/lessons/react-reorder-columns-with-react-beautiful-dnd]. 
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
