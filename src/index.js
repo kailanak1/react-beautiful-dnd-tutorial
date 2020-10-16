@@ -13,34 +13,51 @@ const Container = styled.div`
   display: flex;
   `
 
+class InnerList extends React.Component {
+
+  //conditionally block renders if no props change 
+  shouldComponentUpdate(nextProps){
+    if(nextProps.column === this.props.column &&
+      nextProps.taskMap === this.props.taskMap && 
+      nextProps.index === this.props.index){
+        return false
+      }
+      return true;
+  }
+  render(){
+    const { column, taskMap, index } = this.props; 
+    const tasks = column.taskIds.map(taskId => taskMap[taskId]); 
+    return <Column column={column} tasks={tasks} index={index}/>
+  }
+}
 class App extends React.Component {
   state = initialData;
 
-  // onDragStart = () => {
-  //   //change the color when drag starts 
-  //   document.body.style.color = 'orange'
-  //   document.body.style.transition = 'background-color 0.2s ease'
+onDragStart = (start, provided) => {
+  //provided comes with property announce
+  //used to announce messages to a screen reader
+  provided.announce(
+    `You have lifted the task in posistion ${start.source.index + 1}`,
+  )
+}
 
-  //so that you cannot move backwards between the columns
-  // const homeIndex = this.state.columnOrder.indexOf(start.source.droppableId)
-  // this.setState({
-  //   homeIndex, 
-  //   })
-  // }
+onDragUpdate = (update, provided) => {
+  const message = update.destination
+  ? `You have moved the task to posistion ${update.destination.index + 1}`
+  : `You are currently not over a droppable area`; 
+  
+  provided.announce(message);
+}
 
-  // onDragUpdate = update =>{
-  //   const { destination} = update; 
-  //   const opacity = destination ? destination.index / Object.keys(this.state.tasks).length: 0
-  //   document.body.style.backgroundColor = `rgba(153, 141, 217, ${opacity}))`
-  // }
+  onDragEnd = (result, provided) => {
+    
 
-  onDragEnd = result => {
-    // this.setState({
-    //   homeIndex: null,
-    // })
-    //reset color when drag completes 
-    // document.body.style.color='inherit'
-    // document.body.style.backgroundColor = 'inheret'
+    const message = result.destination
+    ? `You have moved the task from posistion ${result.source.index + 1} to ${result.destination.index + 1}`
+    : `The task has been retured to its starting posistion of ${result.source.index + 1}`
+
+    provided.announce(message);
+    
     const { destination, source, draggableId, type } = result;
     if(! destination){ 
       return; 
@@ -117,33 +134,34 @@ class App extends React.Component {
     this.setState(newState)
   }
 
-  
-
-
-
   render(){
     return(
       <DragDropContext 
       onDragEnd={this.onDragEnd}
       onDragStart={this.onDragStart}
-      // onDragUpdate={this.onDragUpdate}
+      onDragUpdate={this.onDragUpdate}
       >
         
-        <Droppable droppableId="all-column" direction="horizontal" type="column">
-          {(provided) => (
+        <Droppable 
+        droppableId="all-column" 
+        direction="horizontal" 
+        type="column">
+          {provided => (
           <Container
           {...provided.droppableProps}
           ref={provided.innerRef}
           >
             {this.state.columnOrder.map((columnId, index) => {
               const column = this.state.columns[columnId];
-              const tasks = column.taskIds.map(taskId => this.state.tasks[taskId]);
-              //prevents dragging backwards between the columns 
-              // const isDropDisabled = index < this.state.homeIndex;
-              //pass as a prop to Column isDropDisabled={isDropDisabled}
-              return <Column key={column.id} column={column} tasks={tasks} index={index}/>
-            })
-            }
+              
+              return( <InnerList 
+              key={column.id} 
+              column={column} 
+              taskMap={this.state.tasks} 
+              index={index}
+              />
+            );
+          })}
             {provided.placeholder}
          </Container>
          )}

@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import {Droppable, Draggable} from 'react-beautiful-dnd'
 import Task from './task.jsx'
 
@@ -24,6 +24,21 @@ const TaskList = styled.div`
     min-height: 100px;
 `
 
+class InnerList extends React.Component {
+    //if the reference to the array has changed, allow a render (optimizes performance)
+    shouldComponentUpdate(nextProps){
+        if(nextProps.tasks === this.props.tasks){
+            return false
+        }
+        return true 
+    }
+    render(){
+        return this.props.tasks.map((task, index) => {
+            return <Task key={task.id} task={task} index={index} />
+        });
+    }
+}
+
 
 export default class Column extends React.Component{
     render(){
@@ -42,8 +57,7 @@ export default class Column extends React.Component{
                             {...provided.droppableProps}
                             isDraggingOver={snapshot.isDraggingOver}
                         >
-                            {this.props.tasks.map((task, index) => 
-                            <Task key={task.id} task={task} index={index}/>)}
+                            <InnerList tasks={this.props.tasks}/>
                             {provided.placeholder}
                         </TaskList>
                         )}
